@@ -4,217 +4,341 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>InvestorTrace — Find Phone Numbers & More for Real Estate Investors</title>
+  <meta name="description" content="Skip tracing for distressed real estate investors. Find owner phone numbers and emails for pre-foreclosure, probate, and note leads — one at a time or a whole list.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo/investortrace-mark.svg">
+  <link rel="apple-touch-icon" href="assets/logo/investortrace-mark-256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'] },
           colors: {
-            primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
-            accent: { 500: '#10b981', 600: '#059669' }
-          }
+            navy: { 50: '#f1f5fa', 100: '#e2e9f3', 200: '#c5d2e6', 300: '#94a9c9', 400: '#5f7aa3', 500: '#3d5a85', 600: '#2a4369', 700: '#1c3152', 800: '#132743', 900: '#0B1F3A', 950: '#06142a' },
+            brand: { 50: '#effcf9', 100: '#cbf6ee', 200: '#99ecdd', 300: '#5fdcc8', 400: '#2DD4BF', 500: '#14b8a6', 600: '#0D9488', 700: '#0f766e', 800: '#115e59' }
+          },
+          boxShadow: { card: '0 1px 2px rgb(11 31 58 / 0.04), 0 1px 3px rgb(11 31 58 / 0.06)', lift: '0 20px 40px -12px rgb(11 31 58 / 0.25)' }
         }
       }
     }
   </script>
   <style>
-    .result-card { transition: all 0.2s; }
-    .result-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); }
-    .tree-line { border-left: 2px solid #e5e7eb; }
-    .sidebar-link.active { background-color: #eff6ff; color: #2563eb; font-weight: 600; }
+    html { -webkit-font-smoothing: antialiased; }
+    body { font-feature-settings: 'cv11', 'ss01'; }
+    .result-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .result-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgb(11 31 58 / 0.12); }
+    .tree-line { border-left: 2px solid #e2e9f3; }
+    .sidebar-link { color: #3d5a85; }
+    .sidebar-link:hover { background-color: #f1f5fa; color: #0B1F3A; }
+    .sidebar-link.active { background-color: #effcf9; color: #0f766e; font-weight: 600; }
     .progress-bar { transition: width 0.5s ease; }
+    .hero-grid { background-image: linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+    .mode-tab[aria-selected="true"] { background: #fff; color: #0B1F3A; box-shadow: 0 1px 3px rgb(11 31 58 / 0.12); }
+    .field { width: 100%; border: 1px solid #c5d2e6; border-radius: 0.6rem; padding: 0.6rem 0.8rem; font-size: 0.95rem; background: #fff; transition: border-color .15s, box-shadow .15s; }
+    .field:focus { outline: none; border-color: #14b8a6; box-shadow: 0 0 0 3px rgb(20 184 166 / 0.2); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-slate-50 text-navy-900 font-sans">
   <!-- Top Nav -->
-  <nav class="bg-white border-b sticky top-0 z-50">
+  <nav class="bg-white/90 backdrop-blur border-b border-navy-100 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold">IT</div>
-          <span class="text-xl font-bold">InvestorTrace</span>
+        <a href="#" onclick="showLanding(); return false;" class="flex items-center" aria-label="InvestorTrace home">
+          <img src="assets/logo/investortrace-logo.svg" alt="InvestorTrace" class="h-8 w-auto">
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-navy-600">
+          <a href="#" onclick="showLanding(); return false;" class="hover:text-brand-700">Home</a>
+          <button onclick="showView('search')" class="hover:text-brand-700">Search</button>
+          <button onclick="showView('api')" class="hover:text-brand-700">API & Tools</button>
+          <a href="#pricing" class="hover:text-brand-700">Pricing</a>
         </div>
-        <div class="hidden md:flex items-center gap-6">
-          <a href="#landing" class="hover:text-primary-600">Home</a>
-          <button onclick="showView('search')" class="hover:text-primary-600">Search</button>
-          <button onclick="showView('api')" class="hover:text-primary-600">API & Tools</button>
-          <a href="#pricing" class="hover:text-primary-600">Pricing</a>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button onclick="showView('dashboard')" class="hidden sm:inline text-sm font-medium text-navy-600 hover:text-brand-700 px-2">Dashboard</button>
+          <button class="bg-navy-900 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-navy-800 shadow-sm">Start Free Trial</button>
+          <button id="menuBtn" class="md:hidden w-10 h-10 rounded-lg hover:bg-navy-50 text-navy-700" aria-label="Open menu" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')"><i class="fa-solid fa-bars"></i></button>
         </div>
-        <div class="flex items-center gap-3">
-          <button onclick="showView('dashboard')" class="text-sm text-gray-600 hover:text-primary-600">Dashboard</button>
-          <button class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700">Start Free Trial</button>
-        </div>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden border-t border-navy-100 bg-white">
+      <div class="px-4 py-3 grid gap-1 text-sm font-medium text-navy-700">
+        <a href="#" onclick="showLanding(); closeMenu(); return false;" class="px-3 py-2 rounded-lg hover:bg-navy-50">Home</a>
+        <button onclick="showView('search'); closeMenu();" class="text-left px-3 py-2 rounded-lg hover:bg-navy-50">Search</button>
+        <button onclick="showView('api'); closeMenu();" class="text-left px-3 py-2 rounded-lg hover:bg-navy-50">API & Tools</button>
+        <a href="#pricing" onclick="closeMenu()" class="px-3 py-2 rounded-lg hover:bg-navy-50">Pricing</a>
+        <button onclick="showView('dashboard'); closeMenu();" class="text-left px-3 py-2 rounded-lg hover:bg-navy-50">Dashboard</button>
       </div>
     </div>
   </nav>
 
-  <!-- Landing Hero (plain language) -->
-  <section id="landing" class="bg-gradient-to-br from-primary-600 to-primary-700 text-white">
-    <div class="max-w-7xl mx-auto px-4 py-20 sm:py-28 text-center">
-      <h1 class="text-4xl sm:text-5xl font-bold mb-6">Find phone numbers and contact info for property owners</h1>
-      <p class="text-xl text-primary-100 max-w-3xl mx-auto mb-8">Built for real estate investors. Look up one person or upload a whole list. Get phone numbers, emails, and more. Connect it to your CRM so new leads get contact info automatically.</p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button onclick="showView('search')" class="bg-white text-primary-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100">Try a Search</button>
-        <button onclick="showView('api')" class="border border-white/50 px-8 py-3 rounded-lg font-semibold hover:bg-white/10">Connect to Your CRM</button>
+  <!-- Landing (plain language) -->
+  <div id="landing">
+    <section class="relative overflow-hidden bg-navy-900 text-white">
+      <div class="absolute inset-0 hero-grid"></div>
+      <div class="absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-brand-500/20 blur-3xl"></div>
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-300 bg-white/5 ring-1 ring-white/10 rounded-full px-3 py-1 mb-6"><i class="fa-solid fa-house-circle-check"></i> Skip tracing for distressed real estate</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight leading-[1.08] mb-6">Find phone numbers and contact info for <span class="text-brand-400">property owners</span></h1>
+          <p class="text-lg sm:text-xl text-navy-200 max-w-xl mb-4">Built for real estate investors. Look up one person or upload a whole list. Get phone numbers, emails, and more. Connect it to your CRM so new leads get contact info automatically.</p>
+          <p class="text-base text-navy-300 max-w-xl mb-8">Working pre-foreclosures, probate and inherited properties, or non-performing notes? InvestorTrace turns an owner name or a property address into reachable contact info — so you can make an offer before someone else does.</p>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button onclick="showView('search')" class="bg-brand-400 text-navy-950 px-7 py-3 rounded-lg font-semibold hover:bg-brand-300 shadow-lg shadow-brand-500/20"><i class="fa-solid fa-magnifying-glass mr-2"></i>Try a Search</button>
+            <button onclick="showView('api')" class="border border-white/25 px-7 py-3 rounded-lg font-semibold hover:bg-white/10">Connect to Your CRM</button>
+          </div>
+          <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm text-navy-200">
+            <div><i class="fa-solid fa-check mr-2 text-brand-400"></i>Monthly plan + pay only when we find info</div>
+            <div><i class="fa-solid fa-check mr-2 text-brand-400"></i>Works with popular CRMs</div>
+            <div><i class="fa-solid fa-check mr-2 text-brand-400"></i>Single search or bulk lists</div>
+            <div><i class="fa-solid fa-check mr-2 text-brand-400"></i>For business use only</div>
+          </div>
+        </div>
+        <!-- Product preview (sample data) -->
+        <div class="relative">
+          <div class="bg-white text-navy-900 rounded-2xl shadow-lift ring-1 ring-black/5 p-5 sm:p-6">
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2 text-sm font-semibold"><i class="fa-solid fa-location-dot text-brand-600"></i> 123 Sample St, Phoenix, AZ 85001</div>
+              <span class="text-[11px] font-semibold uppercase tracking-wide bg-amber-50 text-amber-700 ring-1 ring-amber-200 px-2 py-0.5 rounded whitespace-nowrap">Sample data</span>
+            </div>
+            <div class="flex items-center gap-3 pb-4 border-b border-navy-100">
+              <div class="w-11 h-11 rounded-full bg-navy-900 text-white flex items-center justify-center font-semibold">JS</div>
+              <div>
+                <div class="font-semibold">Jane Sample</div>
+                <div class="text-xs text-navy-400">Owner of record • Pre-foreclosure lead</div>
+              </div>
+              <span class="ml-auto text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2.5 py-1 rounded-full">Found</span>
+            </div>
+            <div class="py-4 space-y-2 text-sm">
+              <div class="flex flex-wrap gap-2 items-center justify-between bg-slate-50 rounded-lg px-3 py-2.5"><span class="font-medium tabular-nums"><i class="fa-solid fa-mobile-screen mr-2 text-brand-600"></i>(602) 555-0142</span><span class="flex gap-1.5"><span class="text-[11px] font-semibold bg-sky-50 text-sky-700 ring-1 ring-sky-200 px-2 py-0.5 rounded">Mobile</span><span class="text-[11px] font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 px-2 py-0.5 rounded">DNC clear</span></span></div>
+              <div class="flex flex-wrap gap-2 items-center justify-between bg-slate-50 rounded-lg px-3 py-2.5"><span class="font-medium tabular-nums"><i class="fa-solid fa-phone mr-2 text-navy-300"></i>(480) 555-0199</span><span class="flex gap-1.5"><span class="text-[11px] font-semibold bg-slate-100 text-slate-600 ring-1 ring-slate-200 px-2 py-0.5 rounded">Landline</span><span class="text-[11px] font-semibold bg-rose-50 text-rose-700 ring-1 ring-rose-200 px-2 py-0.5 rounded">On DNC</span></span></div>
+              <div class="flex flex-wrap gap-2 items-center justify-between bg-slate-50 rounded-lg px-3 py-2.5"><span class="font-medium"><i class="fa-solid fa-envelope mr-2 text-brand-600"></i>jane.sample@example.com</span><span class="text-[11px] font-semibold bg-slate-100 text-slate-600 ring-1 ring-slate-200 px-2 py-0.5 rounded">Personal</span></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs pt-3 border-t border-navy-100">
+              <div><div class="text-lg font-bold">2</div><div class="text-navy-400">Phones</div></div>
+              <div><div class="text-lg font-bold">1</div><div class="text-navy-400">Email</div></div>
+              <div><div class="text-lg font-bold">3</div><div class="text-navy-400">Relatives</div></div>
+            </div>
+          </div>
+          <p class="text-xs text-navy-300 mt-3 text-center lg:text-left">Illustration with made-up sample data. 555 numbers are fictional.</p>
+        </div>
       </div>
-      <div class="mt-12 flex flex-wrap justify-center gap-8 text-sm text-primary-100">
-        <div><i class="fa-solid fa-check mr-2"></i>Monthly plan + pay only when we find info</div>
-        <div><i class="fa-solid fa-check mr-2"></i>Works with popular CRMs</div>
-        <div><i class="fa-solid fa-check mr-2"></i>Single search or bulk lists</div>
-        <div><i class="fa-solid fa-check mr-2"></i>For business use only</div>
+    </section>
+
+    <!-- Use cases -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div class="max-w-2xl mb-10">
+        <p class="text-sm font-semibold text-brand-700 uppercase tracking-wider mb-2">Who it's for</p>
+        <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">Reach the owner behind the distressed deal</h2>
+        <p class="text-navy-500 mt-3 text-lg">Public records tell you which properties are in trouble. InvestorTrace helps you find the people who can actually sell them.</p>
       </div>
-    </div>
-  </section>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-navy-100 shadow-card p-6">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4"><i class="fa-solid fa-gavel"></i></div>
+          <h3 class="font-semibold text-lg mb-1">Pre-foreclosures</h3>
+          <p class="text-navy-500 text-sm leading-relaxed">Turn notice-of-default and trustee-sale lists into owner phone numbers while there's still time to work out a deal.</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-navy-100 shadow-card p-6">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4"><i class="fa-solid fa-scroll"></i></div>
+          <h3 class="font-semibold text-lg mb-1">Probate & inherited</h3>
+          <p class="text-navy-500 text-sm leading-relaxed">Find heirs and personal representatives, with relatives and address history to confirm you have the right family.</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-navy-100 shadow-card p-6">
+          <div class="w-11 h-11 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center mb-4"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <h3 class="font-semibold text-lg mb-1">Note purchases</h3>
+          <p class="text-navy-500 text-sm leading-relaxed">Locate borrowers on non-performing notes so you can talk through options before or after you buy the paper.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="bg-white border-y border-navy-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid md:grid-cols-3 gap-8">
+        <div class="flex gap-4"><div class="flex-shrink-0 w-9 h-9 rounded-full bg-navy-900 text-white font-semibold flex items-center justify-center">1</div><div><h3 class="font-semibold mb-1">Enter a lead</h3><p class="text-sm text-navy-500">Search by owner name + ZIP, or by property address. Or upload a CSV of your whole list.</p></div></div>
+        <div class="flex gap-4"><div class="flex-shrink-0 w-9 h-9 rounded-full bg-navy-900 text-white font-semibold flex items-center justify-center">2</div><div><h3 class="font-semibold mb-1">Get contact info</h3><p class="text-sm text-navy-500">Phones labeled by type and Do Not Call status, emails, relatives, and linked properties.</p></div></div>
+        <div class="flex gap-4"><div class="flex-shrink-0 w-9 h-9 rounded-full bg-navy-900 text-white font-semibold flex items-center justify-center">3</div><div><h3 class="font-semibold mb-1">Send it to your CRM</h3><p class="text-sm text-navy-500">Results flow to your CRM or dialer via API or webhook. Misses are free.</p></div></div>
+      </div>
+    </section>
+  </div>
 
   <!-- Dashboard Shell (hidden by default, shown via JS) -->
-  <div id="appShell" class="hidden max-w-7xl mx-auto px-4 py-6">
-    <div class="flex gap-6">
-      <!-- Sidebar -->
-      <aside class="w-56 flex-shrink-0">
-        <nav class="bg-white rounded-xl border p-3 space-y-1 sticky top-20">
-          <button onclick="showView('dashboard')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-house w-4"></i> Overview</button>
-          <button onclick="showView('search')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-magnifying-glass w-4"></i> Single Search</button>
-          <button onclick="showView('bulk')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-file-arrow-up w-4"></i> Bulk Upload</button>
-          <button onclick="showView('api')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-plug w-4"></i> API & Keys</button>
-          <button onclick="showView('calling')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-phone w-4"></i> Browser Calling <span class="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded ml-auto">Soon</span></button>
-          <button onclick="showView('affiliate')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-users w-4"></i> Affiliates</button>
-          <button onclick="showView('billing')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-credit-card w-4"></i> Billing</button>
+  <div id="appShell" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Sidebar (horizontal tabs on mobile) -->
+      <aside class="lg:w-60 flex-shrink-0">
+        <nav class="bg-white rounded-xl border border-navy-100 shadow-card p-2 lg:p-3 flex lg:flex-col gap-1 overflow-x-auto no-scrollbar lg:sticky lg:top-20">
+          <button data-view="dashboard" onclick="showView('dashboard')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-house w-4"></i> Overview</button>
+          <button data-view="search" onclick="showView('search')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-magnifying-glass w-4"></i> Single Search</button>
+          <button data-view="bulk" onclick="showView('bulk')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-file-arrow-up w-4"></i> Bulk Upload</button>
+          <button data-view="api" onclick="showView('api')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-plug w-4"></i> API & Keys</button>
+          <button data-view="calling" onclick="showView('calling')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-phone w-4"></i> Browser Calling <span class="text-[11px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded lg:ml-auto">Soon</span></button>
+          <button data-view="affiliate" onclick="showView('affiliate')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-users w-4"></i> Affiliates</button>
+          <button data-view="billing" onclick="showView('billing')" class="sidebar-link whitespace-nowrap text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-credit-card w-4"></i> Billing</button>
         </nav>
       </aside>
 
       <!-- Main Content Views -->
-      <div class="flex-1">
+      <div class="flex-1 min-w-0">
         <!-- Dashboard Overview -->
         <div id="view-dashboard" class="view">
-          <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
-          <div class="grid md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl border p-5">
-              <p class="text-sm text-gray-500">Searches this month</p>
-              <p class="text-2xl font-semibold">186</p>
+          <h2 class="text-2xl font-bold tracking-tight mb-4">Dashboard</h2>
+          <div class="grid sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5">
+              <p class="text-sm text-navy-400">Searches this month</p>
+              <p class="text-3xl font-bold mt-1">186</p>
             </div>
-            <div class="bg-white rounded-xl border p-5">
-              <p class="text-sm text-gray-500">Included remaining</p>
-              <p class="text-2xl font-semibold">147 / 200</p>
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5">
+              <p class="text-sm text-navy-400">Included remaining</p>
+              <p class="text-3xl font-bold mt-1">147 <span class="text-lg text-navy-300 font-semibold">/ 200</span></p>
+              <div class="w-full bg-navy-100 rounded-full h-1.5 mt-3"><div class="bg-brand-500 h-1.5 rounded-full" style="width: 73.5%"></div></div>
             </div>
-            <div class="bg-white rounded-xl border p-5">
-              <p class="text-sm text-gray-500">Hit rate</p>
-              <p class="text-2xl font-semibold">78%</p>
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5">
+              <p class="text-sm text-navy-400">Hit rate</p>
+              <p class="text-3xl font-bold mt-1 text-brand-700">78%</p>
             </div>
           </div>
-          <div class="bg-white rounded-xl border p-6">
+          <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6">
             <h3 class="font-semibold mb-3">Quick actions</h3>
-            <div class="flex gap-3">
-              <button onclick="showView('search')" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm">New search</button>
-              <button onclick="showView('bulk')" class="border px-4 py-2 rounded-lg text-sm">Upload list</button>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="showView('search')" class="bg-navy-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-navy-800"><i class="fa-solid fa-magnifying-glass mr-1.5"></i>New search</button>
+              <button onclick="showView('bulk')" class="border border-navy-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-navy-50"><i class="fa-solid fa-file-arrow-up mr-1.5"></i>Upload list</button>
             </div>
           </div>
         </div>
 
         <!-- Search View -->
         <div id="view-search" class="view hidden">
-          <h2 class="text-2xl font-bold mb-4">Look up one person</h2>
-          <div class="bg-white rounded-xl shadow-sm border p-6">
-            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">First Name</label>
-                <input type="text" id="firstName" value="Jane" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500">
+          <h2 class="text-2xl font-bold tracking-tight mb-1">Look up one person</h2>
+          <p class="text-navy-500 mb-4 text-sm">Search by owner name and ZIP, or by property address.</p>
+          <div class="bg-white rounded-xl shadow-card border border-navy-100 p-5 sm:p-6">
+            <div role="tablist" class="inline-flex bg-navy-50 rounded-lg p-1 mb-5 text-sm font-semibold text-navy-500">
+              <button type="button" role="tab" id="tab-name" aria-selected="true" onclick="setSearchMode('name')" class="mode-tab px-3 sm:px-4 py-2 rounded-md"><i class="fa-solid fa-user mr-1.5"></i>Name + ZIP</button>
+              <button type="button" role="tab" id="tab-address" aria-selected="false" onclick="setSearchMode('address')" class="mode-tab px-3 sm:px-4 py-2 rounded-md"><i class="fa-solid fa-house mr-1.5"></i>Property address</button>
+            </div>
+            <form id="searchForm" class="space-y-4">
+              <div id="fields-name" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label for="firstName" class="block text-sm font-medium text-navy-700 mb-1">First name</label>
+                  <input type="text" id="firstName" value="Jane" class="field">
+                </div>
+                <div>
+                  <label for="lastName" class="block text-sm font-medium text-navy-700 mb-1">Last name</label>
+                  <input type="text" id="lastName" value="Sample" class="field">
+                </div>
+                <div>
+                  <label for="zip" class="block text-sm font-medium text-navy-700 mb-1">ZIP code</label>
+                  <input type="text" id="zip" value="85001" inputmode="numeric" maxlength="10" class="field">
+                </div>
+                <div>
+                  <label for="cityState" class="block text-sm font-medium text-navy-700 mb-1">or City, State <span class="text-navy-300 font-normal">(optional)</span></label>
+                  <input type="text" id="cityState" placeholder="Phoenix, AZ" class="field">
+                </div>
               </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Last Name</label>
-                <input type="text" id="lastName" value="Doe" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500">
+              <div id="fields-address" class="hidden">
+                <label for="address" class="block text-sm font-medium text-navy-700 mb-1">Property address</label>
+                <div class="relative">
+                  <i class="fa-solid fa-location-dot absolute left-3 top-1/2 -translate-y-1/2 text-navy-300"></i>
+                  <input type="text" id="address" value="123 Sample St, Phoenix, AZ 85001" class="field" style="padding-left: 2.2rem">
+                </div>
+                <p class="text-xs text-navy-400 mt-1">Street, city, state, and ZIP. We'll return the likely owner(s) of record.</p>
               </div>
-              <div class="md:col-span-2">
-                <label class="block text-sm font-medium mb-1">Address</label>
-                <input type="text" id="address" value="123 Main St, Phoenix, AZ 85001" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500">
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">How deep?</label>
-                <select id="mode" class="w-full border rounded-lg px-3 py-2">
-                  <option value="standard">Basic (phones & emails)</option>
-                  <option value="deep">Full report (relatives, history & more)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Why are you searching?</label>
-                <select id="purpose" class="w-full border rounded-lg px-3 py-2">
-                  <option>Reaching property owners</option>
-                  <option>Researching a property</option>
-                  <option>Business research</option>
-                  <option>Other business reason</option>
-                </select>
-              </div>
-              <div class="flex items-end">
-                <button type="submit" class="w-full bg-primary-600 text-white py-2 rounded-lg font-medium hover:bg-primary-700">Search</button>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-1">
+                <div class="lg:col-span-2">
+                  <label for="mode" class="block text-sm font-medium text-navy-700 mb-1">How deep?</label>
+                  <select id="mode" class="field">
+                    <option value="standard">Basic (phones & emails)</option>
+                    <option value="deep">Full report (relatives, history & more)</option>
+                  </select>
+                </div>
+                <div class="lg:col-span-2">
+                  <label for="purpose" class="block text-sm font-medium text-navy-700 mb-1">Why are you searching?</label>
+                  <select id="purpose" class="field">
+                    <option>Reaching property owners</option>
+                    <option>Researching a property</option>
+                    <option>Business research</option>
+                    <option>Other business reason</option>
+                  </select>
+                </div>
+                <div class="flex items-end sm:col-span-2 lg:col-span-1">
+                  <button type="submit" class="w-full bg-brand-600 text-white py-2.5 rounded-lg font-semibold hover:bg-brand-700 shadow-sm"><i class="fa-solid fa-magnifying-glass mr-2"></i>Search</button>
+                </div>
               </div>
             </form>
-            <p class="text-xs text-gray-500 mt-3">For business use only. This is not a credit report or background check for hiring/lending.</p>
+            <div class="mt-4 flex items-start gap-2 text-xs text-navy-500 bg-slate-50 border border-navy-100 rounded-lg px-3 py-2">
+              <i class="fa-solid fa-shield-halved mt-0.5 text-navy-400"></i>
+              <p>For business use only. This is not a credit report or background check for hiring/lending.</p>
+            </div>
           </div>
 
-          <div id="results" class="mt-6 hidden">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-semibold">Results <span id="resultStatus" class="text-sm font-normal text-green-600 ml-2"></span></h3>
-              <button onclick="document.getElementById('results').classList.add('hidden')" class="text-sm text-gray-500">Clear</button>
+          <div id="results" class="mt-6 hidden scroll-mt-20">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-lg font-semibold">Results <span id="resultStatus" class="text-sm font-medium text-brand-700 ml-2"></span></h3>
+              <button onclick="document.getElementById('results').classList.add('hidden')" class="text-sm text-navy-400 hover:text-navy-700"><i class="fa-solid fa-xmark mr-1"></i>Clear</button>
             </div>
-            <div id="resultContent" class="bg-white rounded-xl shadow-sm border p-6"></div>
+            <div class="mb-3 text-xs bg-amber-50 text-amber-800 border border-amber-200 rounded-lg px-3 py-2"><i class="fa-solid fa-flask mr-1.5"></i>Demo mode — this is made-up sample data. No live lookup was run.</div>
+            <div id="resultContent" class="bg-white rounded-xl shadow-card border border-navy-100 p-5 sm:p-6"></div>
           </div>
         </div>
 
         <!-- Bulk View -->
         <div id="view-bulk" class="view hidden">
-          <h2 class="text-2xl font-bold mb-4">Upload a list</h2>
-          <div class="bg-white rounded-xl border p-6">
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center mb-4">
-              <i class="fa-solid fa-cloud-arrow-up text-4xl text-gray-400 mb-3"></i>
-              <p class="font-medium">Drop your CSV here or click to browse</p>
-              <p class="text-sm text-gray-500 mt-1">Needs columns: First Name, Last Name, Address (or Property Address)</p>
+          <h2 class="text-2xl font-bold tracking-tight mb-4">Upload a list</h2>
+          <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5 sm:p-6">
+            <div class="border-2 border-dashed border-navy-200 bg-slate-50/60 rounded-xl p-8 sm:p-10 text-center mb-4">
+              <div class="w-14 h-14 mx-auto rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mb-3"><i class="fa-solid fa-cloud-arrow-up text-2xl"></i></div>
+              <p class="font-semibold">Drop your CSV here or click to browse</p>
+              <p class="text-sm text-navy-400 mt-1">Needs columns: First Name, Last Name, Address (or Property Address)</p>
               <input type="file" id="bulkFile" accept=".csv" class="hidden">
-              <button onclick="document.getElementById('bulkFile').click()" class="mt-4 bg-primary-600 text-white px-4 py-2 rounded-lg text-sm">Choose file</button>
+              <button onclick="document.getElementById('bulkFile').click()" class="mt-4 bg-navy-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-navy-800">Choose file</button>
             </div>
             <div id="bulkProgress" class="hidden">
               <div class="flex justify-between text-sm mb-1">
                 <span>Processing 250 records…</span>
-                <span id="bulkPercent">42%</span>
+                <span id="bulkPercent" class="font-semibold tabular-nums">42%</span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div id="bulkBar" class="progress-bar bg-primary-600 h-2.5 rounded-full" style="width: 42%"></div>
+              <div class="w-full bg-navy-100 rounded-full h-2.5">
+                <div id="bulkBar" class="progress-bar bg-brand-500 h-2.5 rounded-full" style="width: 42%"></div>
               </div>
-              <p class="text-xs text-gray-500 mt-2">Matched so far: 98 • Misses (free): 7</p>
+              <p class="text-xs text-navy-400 mt-2">Matched so far: 98 • Misses (free): 7</p>
             </div>
           </div>
         </div>
 
         <!-- API View -->
         <div id="view-api" class="view hidden">
-          <h2 class="text-2xl font-bold mb-4">Connect to your tools</h2>
+          <h2 class="text-2xl font-bold tracking-tight mb-4">Connect to your tools</h2>
           <div class="grid md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white rounded-xl border p-6">
-              <h3 class="font-semibold mb-3 flex items-center gap-2"><i class="fa-solid fa-key text-primary-600"></i> Your API Key</h3>
-              <div class="bg-gray-50 rounded-lg p-3 font-mono text-sm mb-4 flex justify-between items-center">
-                <span>sk_live_••••••••••••••••••••abcd</span>
-                <button class="text-primary-600 text-xs">Copy</button>
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6">
+              <h3 class="font-semibold mb-3 flex items-center gap-2"><i class="fa-solid fa-key text-brand-600"></i> Your API Key</h3>
+              <div class="bg-slate-50 border border-navy-100 rounded-lg p-3 font-mono text-sm mb-4 flex justify-between items-center gap-2">
+                <span class="truncate">sk_live_••••••••••••••••••••abcd</span>
+                <button class="text-brand-700 text-xs font-semibold">Copy</button>
               </div>
-              <button class="text-sm border px-3 py-1.5 rounded-lg hover:bg-gray-50">Generate new key</button>
-              <p class="text-xs text-gray-500 mt-3">Use this to call us from your CRM, dialer, or custom software.</p>
+              <button class="text-sm border border-navy-200 px-3 py-1.5 rounded-lg hover:bg-navy-50 font-medium">Generate new key</button>
+              <p class="text-xs text-navy-400 mt-3">Use this to call us from your CRM, dialer, or custom software.</p>
             </div>
-            <div class="bg-white rounded-xl border p-6">
-              <h3 class="font-semibold mb-3 flex items-center gap-2"><i class="fa-solid fa-plug text-primary-600"></i> Send results back automatically</h3>
-              <label class="block text-sm mb-1">Your webhook URL</label>
-              <input type="url" placeholder="https://your-crm.com/webhooks/investortrace" class="w-full border rounded-lg px-3 py-2 mb-3 text-sm">
-              <label class="block text-sm mb-1">Secret (for security)</label>
-              <input type="text" value="whsec_••••••••" class="w-full border rounded-lg px-3 py-2 mb-3 text-sm font-mono" readonly>
-              <p class="text-xs text-gray-500">When a search finishes we send the phone numbers and details straight to your system.</p>
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6">
+              <h3 class="font-semibold mb-3 flex items-center gap-2"><i class="fa-solid fa-plug text-brand-600"></i> Send results back automatically</h3>
+              <label class="block text-sm font-medium text-navy-700 mb-1">Your webhook URL</label>
+              <input type="url" placeholder="https://your-crm.com/webhooks/investortrace" class="field mb-3 text-sm">
+              <label class="block text-sm font-medium text-navy-700 mb-1">Secret (for security)</label>
+              <input type="text" value="whsec_••••••••" class="field mb-3 text-sm font-mono" readonly>
+              <p class="text-xs text-navy-400">When a search finishes we send the phone numbers and details straight to your system.</p>
             </div>
           </div>
-          <div class="bg-white rounded-xl border p-6">
+          <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6">
             <h3 class="font-semibold mb-2">Example request</h3>
-            <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 text-sm overflow-x-auto"><code>curl -X POST https://api.investortrace.com/v1/skip \
+            <pre class="bg-navy-950 text-navy-100 rounded-lg p-4 text-sm overflow-x-auto"><code>curl -X POST https://api.investortrace.com/v1/skip \
   -H "Authorization: Bearer sk_live_..." \
   -H "Content-Type: application/json" \
   -d '{
     "first_name": "Jane",
-    "last_name": "Doe",
-    "address": "123 Main St, Phoenix, AZ 85001",
+    "last_name": "Sample",
+    "address": "123 Sample St, Phoenix, AZ 85001",
     "mode": "deep",
     "purpose": "reaching property owners",
     "webhook_url": "https://your-crm.com/webhooks/investortrace"
@@ -224,36 +348,36 @@
 
         <!-- Calling Add-on View -->
         <div id="view-calling" class="view hidden">
-          <div class="flex items-center gap-3 mb-4">
-            <h2 class="text-2xl font-bold">Browser Calling & Texting</h2>
-            <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded-full">Add-on • Coming soon</span>
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <h2 class="text-2xl font-bold tracking-tight">Browser Calling & Texting</h2>
+            <span class="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full">Add-on • Coming soon</span>
           </div>
-          <div class="bg-white rounded-xl border p-6 mb-6">
-            <p class="text-lg mb-4">Call and text the numbers we find — right from your browser. Mark each number Good, Bad, or Unknown so you only work the best contacts.</p>
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="border rounded-lg p-4">
-                <h3 class="font-semibold mb-2"><i class="fa-solid fa-phone-volume mr-2 text-primary-600"></i> In-browser calling</h3>
-                <p class="text-sm text-gray-600">Click to call from the results page. No desk phone required. Recordings and notes stay with the lead.</p>
+          <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6 mb-6">
+            <p class="text-lg mb-5 text-navy-700">Call and text the numbers we find — right from your browser. Mark each number Good, Bad, or Unknown so you only work the best contacts.</p>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="border border-navy-100 rounded-xl p-4">
+                <h3 class="font-semibold mb-2"><i class="fa-solid fa-phone-volume mr-2 text-brand-600"></i> In-browser calling</h3>
+                <p class="text-sm text-navy-500">Click to call from the results page. No desk phone required. Recordings and notes stay with the lead.</p>
               </div>
-              <div class="border rounded-lg p-4">
-                <h3 class="font-semibold mb-2"><i class="fa-solid fa-message mr-2 text-primary-600"></i> SMS from the same number</h3>
-                <p class="text-sm text-gray-600">Send a text after you verify the number is good. Opt-out handling built in.</p>
+              <div class="border border-navy-100 rounded-xl p-4">
+                <h3 class="font-semibold mb-2"><i class="fa-solid fa-message mr-2 text-brand-600"></i> SMS from the same number</h3>
+                <p class="text-sm text-navy-500">Send a text after you verify the number is good. Opt-out handling built in.</p>
               </div>
-              <div class="border rounded-lg p-4">
-                <h3 class="font-semibold mb-2"><i class="fa-solid fa-check-double mr-2 text-primary-600"></i> Disposition tracking</h3>
-                <p class="text-sm text-gray-600">Mark numbers Good / Bad / Unknown. Filter future lists to only the ones that answered.</p>
+              <div class="border border-navy-100 rounded-xl p-4">
+                <h3 class="font-semibold mb-2"><i class="fa-solid fa-check-double mr-2 text-brand-600"></i> Disposition tracking</h3>
+                <p class="text-sm text-navy-500">Mark numbers Good / Bad / Unknown. Filter future lists to only the ones that answered.</p>
               </div>
-              <div class="border rounded-lg p-4">
-                <h3 class="font-semibold mb-2"><i class="fa-solid fa-shield-halved mr-2 text-primary-600"></i> Compliance scrubbing</h3>
-                <p class="text-sm text-gray-600">Known litigator scrub and Do Not Call (DNC) checks before you dial or text.</p>
+              <div class="border border-navy-100 rounded-xl p-4">
+                <h3 class="font-semibold mb-2"><i class="fa-solid fa-shield-halved mr-2 text-brand-600"></i> Compliance scrubbing</h3>
+                <p class="text-sm text-navy-500">Known litigator scrub and Do Not Call (DNC) checks before you dial or text.</p>
               </div>
             </div>
-            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
               <strong>Coming soon as a paid add-on.</strong> Requires a separate phone number and usage charges. Subject to TCPA, DNC, and state calling rules. You remain responsible for your outreach.
             </div>
           </div>
-          <div class="bg-white rounded-xl border p-6 text-sm text-gray-600 space-y-3">
-            <h3 class="font-semibold text-gray-900">Important disclosures</h3>
+          <div class="bg-white rounded-xl border-2 border-navy-200 p-6 text-sm text-navy-600 space-y-3">
+            <h3 class="font-semibold text-navy-900 flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-navy-500"></i> Important disclosures</h3>
             <p>• This is a business-to-business tool for legitimate commercial purposes only. It is not a consumer report under the Fair Credit Reporting Act (FCRA).</p>
             <p>• Phone numbers may appear on the National Do Not Call Registry or state DNC lists. You are responsible for complying with the Telephone Consumer Protection Act (TCPA), FCC rules, and applicable state laws before calling or texting.</p>
             <p>• We can provide known litigator scrubbing and DNC screening as part of the calling add-on. Screening reduces risk but does not eliminate it. You must still honor opt-outs and maintain your own suppression lists.</p>
@@ -264,25 +388,25 @@
 
         <!-- Affiliate View -->
         <div id="view-affiliate" class="view hidden">
-          <h2 class="text-2xl font-bold mb-4">Affiliate Program</h2>
-          <div class="bg-white rounded-xl border p-6 mb-6">
-            <p class="mb-4">Earn money by referring other investors and CRM users. Share your link and get paid when they subscribe or use the service.</p>
-            <div class="bg-gray-50 rounded-lg p-3 font-mono text-sm mb-4 flex justify-between items-center">
-              <span>https://investortrace.com/?ref=yourcode</span>
-              <button class="text-primary-600 text-xs">Copy</button>
+          <h2 class="text-2xl font-bold tracking-tight mb-4">Affiliate Program</h2>
+          <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6 mb-6">
+            <p class="mb-4 text-navy-700">Earn money by referring other investors and CRM users. Share your link and get paid when they subscribe or use the service.</p>
+            <div class="bg-slate-50 border border-navy-100 rounded-lg p-3 font-mono text-sm mb-4 flex justify-between items-center gap-2">
+              <span class="truncate">https://investortrace.com/?ref=yourcode</span>
+              <button class="text-brand-700 text-xs font-semibold">Copy</button>
             </div>
-            <div class="grid md:grid-cols-3 gap-4">
-              <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="grid sm:grid-cols-3 gap-4">
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
                 <p class="text-2xl font-bold">12</p>
-                <p class="text-sm text-gray-500">Referrals</p>
+                <p class="text-sm text-navy-400">Referrals</p>
               </div>
-              <div class="text-center p-4 bg-gray-50 rounded-lg">
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
                 <p class="text-2xl font-bold">$186</p>
-                <p class="text-sm text-gray-500">Earned this month</p>
+                <p class="text-sm text-navy-400">Earned this month</p>
               </div>
-              <div class="text-center p-4 bg-gray-50 rounded-lg">
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
                 <p class="text-2xl font-bold">20%</p>
-                <p class="text-sm text-gray-500">Commission rate</p>
+                <p class="text-sm text-navy-400">Commission rate</p>
               </div>
             </div>
           </div>
@@ -290,31 +414,31 @@
 
         <!-- Billing View -->
         <div id="view-billing" class="view hidden">
-          <h2 class="text-2xl font-bold mb-4">Billing</h2>
-          <div class="grid md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl border p-5">
-              <p class="text-sm text-gray-500">Current Plan</p>
-              <p class="text-xl font-semibold">Investor</p>
+          <h2 class="text-2xl font-bold tracking-tight mb-4">Billing</h2>
+          <div class="grid sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5">
+              <p class="text-sm text-navy-400">Current Plan</p>
+              <p class="text-xl font-bold mt-1">Investor</p>
             </div>
-            <div class="bg-white rounded-xl border p-5">
-              <p class="text-sm text-gray-500">Included Searches Left</p>
-              <p class="text-xl font-semibold">147 / 200</p>
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5">
+              <p class="text-sm text-navy-400">Included Searches Left</p>
+              <p class="text-xl font-bold mt-1">147 / 200</p>
             </div>
-            <div class="bg-white rounded-xl border p-5">
-              <p class="text-sm text-gray-500">Extra charges this month</p>
-              <p class="text-xl font-semibold">$34.50</p>
+            <div class="bg-white rounded-xl border border-navy-100 shadow-card p-5">
+              <p class="text-sm text-navy-400">Extra charges this month</p>
+              <p class="text-xl font-bold mt-1">$34.50</p>
             </div>
           </div>
-          <div class="bg-white rounded-xl border p-6">
+          <div class="bg-white rounded-xl border border-navy-100 shadow-card p-6 overflow-x-auto">
             <h3 class="font-semibold mb-3">Recent Activity</h3>
-            <table class="w-full text-sm">
-              <thead class="text-left text-gray-500 border-b">
-                <tr><th class="pb-2">Date</th><th>Type</th><th>Mode</th><th>Result</th><th class="text-right">Credits</th></tr>
+            <table class="w-full text-sm min-w-[28rem]">
+              <thead class="text-left text-navy-400 border-b border-navy-100">
+                <tr><th class="pb-2 font-medium">Date</th><th class="font-medium">Type</th><th class="font-medium">Mode</th><th class="font-medium">Result</th><th class="text-right font-medium">Credits</th></tr>
               </thead>
               <tbody>
-                <tr class="border-b"><td class="py-2">Nov 17</td><td>Single</td><td>Full report</td><td class="text-green-600">Found</td><td class="text-right">1</td></tr>
-                <tr class="border-b"><td class="py-2">Nov 17</td><td>API</td><td>Basic</td><td class="text-green-600">Found</td><td class="text-right">1</td></tr>
-                <tr><td class="py-2">Nov 16</td><td>Bulk (50)</td><td>Basic</td><td>38 found</td><td class="text-right">38</td></tr>
+                <tr class="border-b border-navy-50"><td class="py-2.5">Nov 17</td><td>Single</td><td>Full report</td><td class="text-emerald-600 font-medium">Found</td><td class="text-right">1</td></tr>
+                <tr class="border-b border-navy-50"><td class="py-2.5">Nov 17</td><td>API</td><td>Basic</td><td class="text-emerald-600 font-medium">Found</td><td class="text-right">1</td></tr>
+                <tr><td class="py-2.5">Nov 16</td><td>Bulk (50)</td><td>Basic</td><td>38 found</td><td class="text-right">38</td></tr>
               </tbody>
             </table>
           </div>
@@ -324,69 +448,103 @@
   </div>
 
   <!-- Pricing (always visible below landing or in flow) -->
-  <section id="pricing" class="max-w-7xl mx-auto px-4 py-12">
-    <h2 class="text-2xl font-bold mb-6 text-center">Simple pricing</h2>
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-white rounded-xl shadow-sm border p-6">
+  <section id="pricing" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-16">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <p class="text-sm font-semibold text-brand-700 uppercase tracking-wider mb-2">Pricing</p>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">Simple pricing</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6 items-stretch">
+      <div class="bg-white rounded-2xl shadow-card border border-navy-100 p-6 flex flex-col">
         <h3 class="font-semibold text-lg">Starter</h3>
-        <p class="text-3xl font-bold my-2">$49<span class="text-base font-normal text-gray-500">/mo</span></p>
-        <ul class="text-sm space-y-2 mb-4 text-gray-600">
-          <li>50 included searches</li>
-          <li>Basic: $0.25 each after that</li>
-          <li>Full report: $0.45 each</li>
-          <li>API access included</li>
+        <p class="text-4xl font-bold tracking-tight my-3">$49<span class="text-base font-medium text-navy-400">/mo</span></p>
+        <ul class="text-sm space-y-2.5 mb-6 text-navy-600 flex-1">
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>50 included searches</li>
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>Basic: $0.25 each after that</li>
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>Full report: $0.45 each</li>
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>API access included</li>
         </ul>
-        <button class="w-full border border-primary-600 text-primary-600 py-2 rounded-lg font-medium">Choose Starter</button>
+        <button class="w-full border border-navy-900 text-navy-900 py-2.5 rounded-lg font-semibold hover:bg-navy-50">Choose Starter</button>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border-2 border-primary-500 p-6 relative">
-        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-600 text-white text-xs px-3 py-1 rounded-full">Most Popular</span>
+      <div class="bg-navy-900 text-white rounded-2xl shadow-lift p-6 relative flex flex-col ring-2 ring-brand-400">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-400 text-navy-950 text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
         <h3 class="font-semibold text-lg">Investor</h3>
-        <p class="text-3xl font-bold my-2">$99<span class="text-base font-normal text-gray-500">/mo</span></p>
-        <ul class="text-sm space-y-2 mb-4 text-gray-600">
-          <li>200 included searches</li>
-          <li>Basic: $0.20 each after that</li>
-          <li>Full report: $0.35 each</li>
-          <li>Higher limits + priority help</li>
+        <p class="text-4xl font-bold tracking-tight my-3">$99<span class="text-base font-medium text-navy-300">/mo</span></p>
+        <ul class="text-sm space-y-2.5 mb-6 text-navy-100 flex-1">
+          <li><i class="fa-solid fa-check text-brand-400 mr-2"></i>200 included searches</li>
+          <li><i class="fa-solid fa-check text-brand-400 mr-2"></i>Basic: $0.20 each after that</li>
+          <li><i class="fa-solid fa-check text-brand-400 mr-2"></i>Full report: $0.35 each</li>
+          <li><i class="fa-solid fa-check text-brand-400 mr-2"></i>Higher limits + priority help</li>
         </ul>
-        <button class="w-full bg-primary-600 text-white py-2 rounded-lg font-medium">Choose Investor</button>
+        <button class="w-full bg-brand-400 text-navy-950 py-2.5 rounded-lg font-semibold hover:bg-brand-300">Choose Investor</button>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border p-6">
+      <div class="bg-white rounded-2xl shadow-card border border-navy-100 p-6 flex flex-col">
         <h3 class="font-semibold text-lg">For Platforms</h3>
-        <p class="text-3xl font-bold my-2">Custom</p>
-        <ul class="text-sm space-y-2 mb-4 text-gray-600">
-          <li>Better rates for high volume</li>
-          <li>White-label options</li>
-          <li>Help getting set up</li>
-          <li>Earn from referrals</li>
+        <p class="text-4xl font-bold tracking-tight my-3">Custom</p>
+        <ul class="text-sm space-y-2.5 mb-6 text-navy-600 flex-1">
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>Better rates for high volume</li>
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>White-label options</li>
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>Help getting set up</li>
+          <li><i class="fa-solid fa-check text-brand-600 mr-2"></i>Earn from referrals</li>
         </ul>
-        <button class="w-full border py-2 rounded-lg font-medium">Talk to us</button>
+        <button class="w-full border border-navy-200 py-2.5 rounded-lg font-semibold hover:bg-navy-50">Talk to us</button>
       </div>
     </div>
-    <p class="text-sm text-gray-500 mt-6 text-center">You only pay when we find contact info. Misses are free. Monthly fee covers the platform and your included searches.</p>
+    <p class="text-sm text-navy-500 mt-8 text-center">You only pay when we find contact info. Misses are free. Monthly fee covers the platform and your included searches.</p>
   </section>
 
-  <footer class="border-t bg-white mt-12">
-    <div class="max-w-7xl mx-auto px-4 py-8 text-sm text-gray-500 flex flex-col md:flex-row justify-between gap-4">
-      <div>© 2026 InvestorTrace. For legitimate business purposes only. Not a consumer reporting agency. Not for use in credit, insurance, employment, or tenant screening decisions. Phone outreach is subject to TCPA, DNC, and state laws. You are responsible for compliance.</div>
-      <div class="flex gap-4">
-        <a href="#" class="hover:text-gray-700">Terms</a>
-        <a href="#" class="hover:text-gray-700">Privacy</a>
-        <a href="#" class="hover:text-gray-700">Compliance</a>
+  <footer class="border-t border-navy-100 bg-white mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="flex flex-col md:flex-row justify-between gap-6 mb-6">
+        <img src="assets/logo/investortrace-logo.svg" alt="InvestorTrace" class="h-7 w-auto self-start">
+        <div class="flex gap-6 text-sm font-medium text-navy-500">
+          <a href="#" class="hover:text-navy-900">Terms</a>
+          <a href="#" class="hover:text-navy-900">Privacy</a>
+          <a href="#" class="hover:text-navy-900">Compliance</a>
+        </div>
       </div>
+      <div class="text-sm text-navy-600 bg-slate-50 border border-navy-100 rounded-lg p-4 leading-relaxed"><i class="fa-solid fa-scale-balanced mr-2 text-navy-400"></i>© 2026 InvestorTrace. For legitimate business purposes only. Not a consumer reporting agency. Not for use in credit, insurance, employment, or tenant screening decisions. Phone outreach is subject to TCPA, DNC, and state laws. You are responsible for compliance.</div>
     </div>
   </footer>
 
   <script>
+    function closeMenu() { document.getElementById('mobileMenu').classList.add('hidden'); }
+
+    function showLanding() {
+      document.getElementById('appShell').classList.add('hidden');
+      document.getElementById('landing').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function showView(view) {
       document.getElementById('landing').classList.add('hidden');
       document.getElementById('appShell').classList.remove('hidden');
       document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
       document.getElementById('view-' + view).classList.remove('hidden');
-      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-      event?.target?.closest('.sidebar-link')?.classList.add('active');
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.toggle('active', l.dataset.view === view));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    let searchMode = 'name';
+    function setSearchMode(m) {
+      searchMode = m;
+      document.getElementById('fields-name').classList.toggle('hidden', m !== 'name');
+      document.getElementById('fields-address').classList.toggle('hidden', m !== 'address');
+      document.getElementById('tab-name').setAttribute('aria-selected', m === 'name');
+      document.getElementById('tab-address').setAttribute('aria-selected', m === 'address');
+    }
+
+    const badge = (text, tone) => {
+      const tones = {
+        mobile: 'bg-sky-50 text-sky-700 ring-sky-200',
+        neutral: 'bg-slate-100 text-slate-600 ring-slate-200',
+        good: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        bad: 'bg-rose-50 text-rose-700 ring-rose-200',
+        warn: 'bg-amber-50 text-amber-700 ring-amber-200'
+      };
+      return `<span class="text-[11px] font-semibold ring-1 px-2 py-0.5 rounded ${tones[tone]}">${text}</span>`;
+    };
+
+    // Demo only: renders made-up sample data. No network calls.
     document.getElementById('searchForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const mode = document.getElementById('mode').value;
@@ -394,70 +552,82 @@
       const content = document.getElementById('resultContent');
       const status = document.getElementById('resultStatus');
 
-      status.textContent = mode === 'deep' ? 'Full report • charged' : 'Basic match • charged';
+      status.textContent = (mode === 'deep' ? 'Full report' : 'Basic match') + ' • sample';
+      const queryLabel = searchMode === 'name'
+        ? `Name + ZIP: Jane Sample, 85001`
+        : `Address: 123 Sample St, Phoenix, AZ 85001`;
 
       const extra = mode === 'deep' ? `
-        <div class="mt-6">
-          <h4 class="font-semibold mb-2">Relatives</h4>
-          <div class="tree-line pl-4 space-y-3">
-            <div class="result-card bg-gray-50 rounded-lg p-3">
-              <div class="font-medium">Robert Doe <span class="text-xs text-gray-500">(spouse, age 48)</span></div>
-              <div class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-phone mr-1"></i> (602) 555-0000</div>
-            </div>
-            <div class="result-card bg-gray-50 rounded-lg p-3">
-              <div class="font-medium">Emily Doe <span class="text-xs text-gray-500">(daughter)</span></div>
-              <div class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-envelope mr-1"></i> emily@example.com</div>
+        <div class="mt-6 grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-navy-400 mb-2">Relatives</h4>
+            <div class="tree-line pl-4 space-y-3">
+              <div class="result-card bg-slate-50 rounded-lg p-3">
+                <div class="font-medium">Robert Sample <span class="text-xs text-navy-400">(spouse, age 48)</span></div>
+                <div class="text-sm text-navy-500 mt-1 tabular-nums"><i class="fa-solid fa-phone mr-1"></i> (602) 555-0100</div>
+              </div>
+              <div class="result-card bg-slate-50 rounded-lg p-3">
+                <div class="font-medium">Emily Sample <span class="text-xs text-navy-400">(daughter)</span></div>
+                <div class="text-sm text-navy-500 mt-1"><i class="fa-solid fa-envelope mr-1"></i> emily.sample@example.com</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="mt-6">
-          <h4 class="font-semibold mb-2">Address history</h4>
-          <div class="space-y-2 text-sm">
-            <div class="bg-gray-50 rounded-lg p-3">123 Main St, Phoenix, AZ 85001 <span class="text-xs text-gray-500">(current)</span></div>
-            <div class="bg-gray-50 rounded-lg p-3">456 Oak Ave, Scottsdale, AZ 85251 <span class="text-xs text-gray-500">(2019–2023)</span></div>
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-navy-400 mb-2">Address history</h4>
+            <div class="space-y-2 text-sm">
+              <div class="bg-slate-50 rounded-lg p-3">123 Sample St, Phoenix, AZ 85001 <span class="text-xs text-navy-400">(current)</span></div>
+              <div class="bg-slate-50 rounded-lg p-3">456 Example Ave, Scottsdale, AZ 85251 <span class="text-xs text-navy-400">(2019–2023)</span></div>
+            </div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-navy-400 mb-2 mt-5">Linked properties</h4>
+            <div class="bg-slate-50 rounded-lg p-3 text-sm">789 Demo Rd, Mesa, AZ 85201 <span class="text-xs text-navy-400">(possible owner)</span></div>
           </div>
-        </div>
-        <div class="mt-6">
-          <h4 class="font-semibold mb-2">Linked properties</h4>
-          <div class="bg-gray-50 rounded-lg p-3 text-sm">789 Pine Rd, Mesa, AZ 85201 (possible owner)</div>
         </div>` : '';
 
       content.innerHTML = `
-        <div class="flex flex-col md:flex-row md:justify-between gap-4">
-          <div>
-            <h3 class="text-xl font-bold">Jane Doe</h3>
-            <p class="text-gray-600">123 Main St, Phoenix, AZ 85001</p>
-            <p class="text-sm text-gray-500 mt-1">Match strength: High • Not deceased</p>
+        <div class="flex flex-col sm:flex-row sm:justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 rounded-full bg-navy-900 text-white flex items-center justify-center font-semibold flex-shrink-0">JS</div>
+            <div>
+              <h3 class="text-xl font-bold">Jane Sample</h3>
+              <p class="text-navy-500">123 Sample St, Phoenix, AZ 85001</p>
+              <p class="text-sm text-navy-400 mt-1">Match strength: High • Not deceased</p>
+            </div>
           </div>
-          <div class="text-sm bg-green-50 text-green-700 px-3 py-1 rounded-full h-fit">Found</div>
+          <div class="h-fit">${badge('Found', 'good')}</div>
         </div>
         <div class="mt-6 grid md:grid-cols-2 gap-6">
           <div>
-            <h4 class="font-semibold mb-2">Phone numbers</h4>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-navy-400 mb-2">Phone numbers</h4>
             <div class="space-y-2">
-              <div class="flex justify-between items-center bg-gray-50 rounded-lg p-3">
-                <span><i class="fa-solid fa-mobile-screen mr-2 text-primary-600"></i> (602) 555-1234</span>
-                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Mobile</span>
+              <div class="flex flex-wrap justify-between items-center gap-2 bg-slate-50 rounded-lg p-3">
+                <span class="font-medium tabular-nums"><i class="fa-solid fa-mobile-screen mr-2 text-brand-600"></i>(602) 555-0142</span>
+                <span class="flex gap-1.5">${badge('Mobile', 'mobile')}${badge('DNC clear', 'good')}</span>
               </div>
-              <div class="flex justify-between items-center bg-gray-50 rounded-lg p-3">
-                <span><i class="fa-solid fa-phone mr-2 text-gray-400"></i> (602) 555-9876</span>
-                <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded">Landline • Do Not Call</span>
+              <div class="flex flex-wrap justify-between items-center gap-2 bg-slate-50 rounded-lg p-3">
+                <span class="font-medium tabular-nums"><i class="fa-solid fa-phone mr-2 text-navy-300"></i>(480) 555-0199</span>
+                <span class="flex gap-1.5">${badge('Landline', 'neutral')}${badge('Do Not Call', 'bad')}</span>
+              </div>
+              <div class="flex flex-wrap justify-between items-center gap-2 bg-slate-50 rounded-lg p-3">
+                <span class="font-medium tabular-nums"><i class="fa-solid fa-headset mr-2 text-navy-300"></i>(623) 555-0177</span>
+                <span class="flex gap-1.5">${badge('VoIP', 'neutral')}${badge('Unverified', 'warn')}</span>
               </div>
             </div>
           </div>
           <div>
-            <h4 class="font-semibold mb-2">Emails</h4>
-            <div class="bg-gray-50 rounded-lg p-3">
-              <i class="fa-solid fa-envelope mr-2 text-primary-600"></i> jane.doe@example.com
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-navy-400 mb-2">Emails</h4>
+            <div class="flex flex-wrap justify-between items-center gap-2 bg-slate-50 rounded-lg p-3">
+              <span><i class="fa-solid fa-envelope mr-2 text-brand-600"></i>jane.sample@example.com</span>
+              ${badge('Personal', 'neutral')}
             </div>
           </div>
         </div>
         ${extra}
-        <div class="mt-6 pt-4 border-t text-xs text-gray-500">
-          Search ID: srch_demo_001 • Purpose recorded
+        <div class="mt-6 pt-4 border-t border-navy-100 text-xs text-navy-400 flex flex-wrap gap-x-3 gap-y-1">
+          <span>Search ID: srch_demo_001</span><span>•</span><span>${queryLabel}</span><span>•</span><span>Purpose recorded</span>
         </div>
       `;
       results.classList.remove('hidden');
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     // Simple bulk progress simulation

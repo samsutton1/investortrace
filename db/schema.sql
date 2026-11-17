@@ -42,6 +42,7 @@ CREATE TABLE searches (
   error_message TEXT,
   provider_search_id TEXT,                       -- the provider's own id for this search
   skips_used    INTEGER NOT NULL DEFAULT 0,      -- provider units charged for the search itself
+  reused        INTEGER NOT NULL DEFAULT 0 CHECK (reused IN (0,1)),  -- provider reopened a saved result for free
   cost_cents    INTEGER NOT NULL DEFAULT 0,
   is_test       INTEGER NOT NULL DEFAULT 1 CHECK (is_test IN (0,1)),  -- 1 = test/demo data
   requested_by  TEXT,
@@ -169,6 +170,8 @@ CREATE TABLE person_relatives (
   relationship  TEXT,                            -- Spouse, Child, Parent, Sibling, ...
   relation_group TEXT CHECK (relation_group IN ('family','associate')),
   full_name     TEXT,
+  first_name    TEXT,
+  last_name     TEXT,
   age           INTEGER,
   deceased      INTEGER CHECK (deceased IN (0,1)),
   likely_deceased INTEGER CHECK (likely_deceased IN (0,1)),
@@ -192,6 +195,7 @@ CREATE TABLE properties (
   owned_now     INTEGER CHECK (owned_now IN (0,1)),
   estimated_value_cents INTEGER,
   assessed_value_cents  INTEGER,
+  assessed_year INTEGER,
   living_sqft   INTEGER,
   lot_sqft      INTEGER,
   bedrooms      REAL,

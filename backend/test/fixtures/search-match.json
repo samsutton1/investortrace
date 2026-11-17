@@ -1,0 +1,191 @@
+{
+  "status": "found",
+  "type": "name",
+  "search_id": "dst_test_search_fixture_001",
+  "created_at": "2026-11-17T00:00:00Z",
+  "reused": false,
+  "skips_used": 1,
+  "query": {
+    "first_name": "Zzyzx",
+    "last_name": "Fixtureperson",
+    "zip": "85001"
+  },
+  "result_count": 2,
+  "truncated": false,
+  "people": [
+    {
+      "person_id": "dst_test_person_fixture_001",
+      "index": 1,
+      "name": "Zzyzx Fixtureperson",
+      "age": 41,
+      "deceased": false,
+      "likely_deceased": false,
+      "place": "Phoenix, AZ",
+      "phone_count": 2,
+      "relative_count": 1,
+      "owner": true,
+      "last_seen_here": "2024-03",
+      "locked": false,
+      "open_url": null,
+      "report": {
+        "person_id": "dst_test_person_fixture_001",
+        "name": "Zzyzx Fixtureperson",
+        "first_name": "Zzyzx",
+        "last_name": "Fixtureperson",
+        "aliases": [
+          "Z. Fixtureperson"
+        ],
+        "age": 41,
+        "deceased": false,
+        "likely_deceased": false,
+        "date_of_death": null,
+        "addresses": [
+          {
+            "street": "123 Sample St",
+            "city": "Phoenix",
+            "state": "AZ",
+            "zip": "85001",
+            "county": "Maricopa",
+            "first_seen": "2018-01",
+            "last_seen": "2024-03",
+            "owned": true,
+            "owned_before": false
+          }
+        ],
+        "phones": [
+          {
+            "number": "6025550199",
+            "display": "(602) 555-0199",
+            "type": "mobile",
+            "carrier": "Demo Wireless",
+            "disconnected": false,
+            "business": false,
+            "flagged": false,
+            "first_seen": "2019-06",
+            "last_seen": "2024-03"
+          },
+          {
+            "number": "4805550100",
+            "display": "(480) 555-0100",
+            "type": "landline",
+            "carrier": "Demo Tel",
+            "disconnected": true,
+            "business": false,
+            "flagged": true,
+            "first_seen": "2016-01",
+            "last_seen": "2020-12"
+          }
+        ],
+        "emails": [
+          {
+            "address": "zzyzx.fixtureperson@example.com",
+            "inactive": false,
+            "first_seen": "2018-02",
+            "last_seen": "2024-01"
+          }
+        ],
+        "properties": [
+          {
+            "address": {
+              "street": "123 Sample St",
+              "city": "Phoenix",
+              "state": "AZ",
+              "zip": "85001",
+              "county": "Maricopa"
+            },
+            "mailing_address": {
+              "street": "PO Box 100",
+              "city": "Phoenix",
+              "state": "AZ",
+              "zip": "85001",
+              "county": "Maricopa"
+            },
+            "owners": [
+              "Zzyzx Fixtureperson"
+            ],
+            "owned_now": true,
+            "assessed_value": 250000,
+            "market_value": 310000.5,
+            "assessed_year": 2025,
+            "bedrooms": 3,
+            "bathrooms": 2,
+            "building_sqft": 1600,
+            "lot_sqft": 7000,
+            "year_built": 1988,
+            "county": "Maricopa",
+            "parcel_number": "000-00-000",
+            "foreclosure": true,
+            "sales": [
+              {
+                "date": "2018-04",
+                "price": 225000,
+                "seller": "Sample Seller",
+                "buyer": "Zzyzx Fixtureperson",
+                "deed_type": "warranty deed"
+              }
+            ],
+            "loans": [
+              {
+                "date": "2018-04",
+                "amount": 180000,
+                "type": "deed of trust"
+              }
+            ]
+          }
+        ],
+        "relatives": [
+          {
+            "relationship": "Spouse",
+            "group": "family",
+            "name": "Qwxno Fixtureperson",
+            "first_name": "Qwxno",
+            "last_name": "Fixtureperson",
+            "age": 40,
+            "deceased": false,
+            "likely_deceased": false,
+            "address": {
+              "street": "123 Sample St",
+              "city": "Phoenix",
+              "state": "AZ",
+              "zip": "85001",
+              "county": "Maricopa"
+            },
+            "phones": [
+              {
+                "number": "6025550188",
+                "display": "(602) 555-0188",
+                "type": "mobile",
+                "carrier": "Demo Wireless",
+                "disconnected": false,
+                "business": false,
+                "flagged": false
+              }
+            ],
+            "emails": []
+          }
+        ]
+      }
+    },
+    {
+      "person_id": "dst_test_person_fixture_locked",
+      "index": 2,
+      "name": "Locked Fixtureperson",
+      "age": 62,
+      "deceased": false,
+      "likely_deceased": false,
+      "place": "Phoenix, AZ",
+      "phone_count": 0,
+      "relative_count": 0,
+      "owner": false,
+      "last_seen_here": "2020-01",
+      "locked": true,
+      "open_url": "https://deepskiptrace.com/api/v1/people/dst_test_person_fixture_locked",
+      "report": null
+    }
+  ],
+  "owners_not_listed": [],
+  "message": "Fixture match used only in offline tests.",
+  "balance": {
+    "skips": 98
+  }
+}

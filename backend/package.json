@@ -1,0 +1,18 @@
+{
+  "name": "investortrace-backend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Minimal InvestorTrace API server. Lives in backend/ so the repo root stays a static site.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
